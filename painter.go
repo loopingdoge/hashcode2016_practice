@@ -33,7 +33,7 @@ func paintRow(matrix [][] int, operations []Operation, spr int, spc int, ROWS in
   } else {
     op = Operation {
       Name: "PAINT_LINE",
-      Cells: [4] int {spr, spc, spr, spc + rowLength},
+      Cells: [4] int {spr, spc, spr, spc + (rowLength-1)},
     }
   }
   operations = append(operations, op)
@@ -56,7 +56,7 @@ func paintByLines(matrix [][]int, operations []Operation, ROWS int, COLS int) ([
 
 func main() {
   operations := [] Operation {}
-  inputFile := "inputs/logo.in"
+  inputFile := "inputs/right_angle.in"
   // Read the file and check for errors
   dat, err := ioutil.ReadFile(inputFile)
   checkError(err)
@@ -88,12 +88,16 @@ func main() {
   }
   matrix, operations = paintByLines(matrix, operations, ROWS, COLS)
   fmt.Println(len(operations))
-  i := 0
   for _,value := range operations {
-    fmt.Println(value)
-    i++
+    switch {
+    case strings.Compare(value.Name, "PAINT_LINE") == 0:
+      fmt.Printf("%s %d %d %d %d\n", value.Name, value.Cells[0], value.Cells[1], value.Cells[2], value.Cells[3])
+    case strings.Compare(value.Name, "PAINT_SQUARE") == 0:
+      fmt.Printf("%s %d %d %d\n", value.Name, value.Cells[0], value.Cells[1], value.Cells[2])
+    case strings.Compare(value.Name, "ERASE_CELL") == 0:
+        fmt.Printf("%s %d %d\n", value.Name, value.Cells[0], value.Cells[1])
+    }
   }
-  fmt.Println(i)
   // for _,line := range matrix {
   //   fmt.Println(line)
   // }
