@@ -18,14 +18,14 @@ func checkError(e error) {
   }
 }
 
-func paintRow(matrix *[][] int, operations *[]Operation, spr int, spc int, ROWS int, COLS int) int {
+func paintRow(matrix [][] int, operations []Operation, spr int, spc int, ROWS int, COLS int) ([][]int, []Operation) {
   var op Operation
   rowLength := 0
-  for i:=0; ((spc + i) < COLS) && ((*matrix)[spr][spc + i] == 1); i++ {
+  for i:=0; ((spc + i) < COLS) && (matrix[spr][spc + i] == 1); i++ {
     rowLength++
   }
 
-  if rowLength == 0 {
+  if rowLength == 1 {
     op = Operation {
       Name: "PAINT_SQUARE",
       Cells: [4] int {spr, spc, 0, 0},
@@ -36,21 +36,22 @@ func paintRow(matrix *[][] int, operations *[]Operation, spr int, spc int, ROWS 
       Cells: [4] int {spr, spc, spr, spc + rowLength},
     }
   }
-  (*operations) = append(*operations, op)
-  for i:=spc; i <= (spc + rowLength); i++ {
-    (*matrix)[spr][spc] = 0
+  operations = append(operations, op)
+  for i := spc; i < (spc + rowLength); i++ {
+    matrix[spr][i] = 0
   }
-  return rowLength
+  return matrix, operations
 }
 
-func paintByLines(matrix *[][]int, operations *[]Operation, ROWS int, COLS int) {
-  for row,_ := range (*matrix) {
-    for col,_ := range (*matrix)[row] {
-      if (*matrix)[row][col] == 1 {
-        paintRow(matrix, operations, row, col, ROWS, COLS)
+func paintByLines(matrix [][]int, operations []Operation, ROWS int, COLS int) ([][]int, []Operation){
+  for row,_ := range matrix {
+    for col,_ := range matrix[row] {
+      if matrix[row][col] == 1 {
+        matrix, operations = paintRow(matrix, operations, row, col, ROWS, COLS)
       }
     }
   }
+  return matrix, operations
 }
 
 func main() {
@@ -85,7 +86,7 @@ func main() {
     }
     matrix = append(matrix, lineToAppend)
   }
-  paintByLines(&matrix, &operations, ROWS, COLS)
+  matrix, operations = paintByLines(matrix, operations, ROWS, COLS)
   fmt.Println(len(operations))
   i := 0
   for _,value := range operations {
